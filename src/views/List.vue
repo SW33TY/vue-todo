@@ -4,6 +4,18 @@
       <h1>List</h1>
       <button type="button" class="btn btn-clear" @click="deleteAllTasks">Clear All Tasks</button>
     </div>
+    <div class="row">
+      <div class="input-filed col s3">
+        <select ref="select" v-model="filterByDate">
+          <option value disabled selected>Choose your option</option>
+          <option value="active">Active</option>
+          <option value="outdated">Outdated</option>
+          <option value="completed">Completed</option>
+        </select>
+        <label>Materialize Select</label>
+      </div>
+      <button class="btn btn-clear btn-small" @click="filterByDate = null">Clear Filter</button>
+    </div>
 
     <hr />
 
@@ -20,7 +32,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="(task, idx) of tasks"
+          v-for="(task, idx) of displayTasks"
           :key="task.id"
           :class="[(task.status == 'completed') ? 'complted-col':'',
           (task.status == 'outdated') ? 'outdated-col':''] "
@@ -46,15 +58,29 @@
 // import Vue from "vue";
 // export default Vue.extend({});
 export default {
+  data: () => ({
+    filterByDate: null
+  }),
   computed: {
     tasks() {
       return this.$store.getters.tasks;
+    },
+    displayTasks() {
+      return this.tasks.filter(t => {
+        if (!this.filterByDate) {
+          return true;
+        }
+        return t.status === this.filterByDate;
+      });
     }
   },
   methods: {
     deleteAllTasks() {
       this.$store.dispatch("deleteAllTasks", this.tasks);
     }
+  },
+  mounted() {
+    M.FormSelect.init(this.$refs.select);
   }
 };
 </script>
